@@ -57,6 +57,25 @@ module foot(depth_offset) {
     }
 }
 
+module screw_mount(depth_offset) {
+    mount_depth = 20;
+    translate([TOP_WIDTH - LEG_WIDTH, depth_offset, -mount_depth]) {
+        union() {
+            difference() {
+                cube([LEG_WIDTH, FOOT_DEPTH, mount_depth]);
+                translate([0, FOOT_DEPTH/2, 5]) rotate([0, 90, 0]) cylinder(h=20, r=2, center=false, $fn=100);
+            }
+            translate([0, FOOT_DEPTH, mount_depth]) {
+                rotate([90, 0, 0]) {
+                    linear_extrude(height=FOOT_DEPTH) {
+                        polygon([[0, 0], [-(TOP_WIDTH - LEG_WIDTH), 0], [0,-10]]);
+                    }
+                }
+            }
+        }
+    }
+}
+
 module connector_female() {
     connector_depth = 15;
     incut_depth = 10;
@@ -131,22 +150,41 @@ module struts(shallow_foot, deep_foot, strut_width) {
     
 
 
-
+// make LEFT
 //mirror([1, 0, 0]) {
-
-    // MALE RIGHT
-    top_section();
-    foot(TOTAL_TOP_DEPTH*2/3);
-    foot(0);
-    struts(0, TOTAL_TOP_DEPTH*2/3, 20);
-    connector_male();
-
-
-    // FEMALE RIGHT
+//
+//    // MALE RIGHT
+////    top_section();
+////    foot(TOTAL_TOP_DEPTH*2/3);
+////    foot(0);
+////    struts(0, TOTAL_TOP_DEPTH*2/3, 20);
+////    connector_male();
+//
+//
+//    // FEMALE RIGHT
 //    top_section();
 //    foot(TOTAL_TOP_DEPTH*1/3 -FOOT_DEPTH);
 //    foot(TOTAL_TOP_DEPTH-FOOT_DEPTH);
 //    struts(TOTAL_TOP_DEPTH*1/3 -FOOT_DEPTH, TOTAL_TOP_DEPTH-FOOT_DEPTH, 20);
 //    connector_female();
-
+//
 //}
+
+
+// make LEFT
+mirror([1, 0, 0]) {
+
+    // MALE RIGHT
+    top_section();
+    screw_mount(TOTAL_TOP_DEPTH*2/3);
+    screw_mount(0);
+    connector_male();
+
+
+    // FEMALE RIGHT
+//    top_section();
+//    screw_mount(TOTAL_TOP_DEPTH*1/3 -FOOT_DEPTH);
+//    screw_mount(TOTAL_TOP_DEPTH-FOOT_DEPTH);
+//    connector_female();
+
+}
