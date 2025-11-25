@@ -8,7 +8,7 @@ RAIL_HEIGHT = LOWER_NOTCH_HEIGHT + MIDDLE_NOTCH_HEIGHT + UPPER_NOTCH_HEIGHT;
 
 RAIL_WIDTH = 24.6;
 
-RAIL_LENGTH = 396;
+RAIL_LENGTH = 394; // trimmed 2mm for round using ikea metal pegs
 
 FRONT_LEN = 200;
 
@@ -67,42 +67,54 @@ module full_rail() {
 }
 
 
-module male_peg() {
-    z_depth = 19;
-    translate([RAIL_WIDTH / 2, RAIL_HEIGHT / 2, FRONT_LEN - z_depth/2]) cube([RAIL_WIDTH - NOTCH_WIDTH*2 - 5 - .2, RAIL_HEIGHT-12 -.2, z_depth], center=true);
-}
+//module male_peg() {
+//    z_depth = 19;
+//    translate([RAIL_WIDTH / 2, RAIL_HEIGHT / 2, FRONT_LEN - z_depth/2]) cube([RAIL_WIDTH - NOTCH_WIDTH*2 - 5 - .2, RAIL_HEIGHT-12 -.2, z_depth], center=true);
+//}
+//
+//module female_hole() {
+//    z_depth = 20;
+//    translate([RAIL_WIDTH / 2, RAIL_HEIGHT / 2, FRONT_LEN - z_depth/2]) cube([RAIL_WIDTH - NOTCH_WIDTH*2 - 5, RAIL_HEIGHT-12, z_depth], center=true);
+//}
 
-module female_hole() {
-    z_depth = 20;
-    translate([RAIL_WIDTH / 2, RAIL_HEIGHT / 2, FRONT_LEN - z_depth/2]) cube([RAIL_WIDTH - NOTCH_WIDTH*2 - 5, RAIL_HEIGHT-12, z_depth], center=true);
+module metal_peg_holes() {
+    z_depth = 46;
+    peg_radius = 3.3;
+    translate([RAIL_WIDTH * .45, RAIL_HEIGHT / 4, FRONT_LEN]) cylinder(h = z_depth, r=peg_radius, center=true);
+    translate([RAIL_WIDTH * .55, 3* RAIL_HEIGHT / 4, FRONT_LEN]) cylinder(h = z_depth, r=peg_radius, center=true);
+
 }
 
 
 module back_rail() {
     difference() {
         full_rail();
-        translate([0, 0, -40]) color("purple") cube([50, 50, FRONT_LEN + 40]);   
+        translate([0, 0, -40]) color("purple") cube([50, 50, FRONT_LEN + 40]);
+        metal_peg_holes();
     }
-    male_peg();
+//    male_peg();
 
 }
 
 module front_rail() {
     difference() {
         full_rail();
-        translate([0, 0, FRONT_LEN]) color("purple") cube([50, 50, 300]);   
-        female_hole();
+        translate([0, 0, FRONT_LEN]) color("purple") cube([50, 50, 300]);
+        metal_peg_holes();
+//        female_hole();
 
     }
 
 }
 
 //full_rail();
-//back_rail();
-front_rail();
+back_rail();
+//front_rail();
+
+//color("green") metal_peg_holes();
 
 //difference() {
-//color("pink") female_hole();
-//color("blue") male_peg();
+//  color("pink") female_hole();
+//  color("blue") male_peg();
 //}
 
