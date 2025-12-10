@@ -1,5 +1,5 @@
 // Cuvette Rack for Biology Tubes
-// Parametric design for 4x10 grid with crosshatched walls
+// Parametric design for 4x10 grid with solid walls
 
 $fn = 50;
 
@@ -16,8 +16,6 @@ DIVETTE_DEPTH = 3; // mm, depth of tube indent
 // Wall parameters
 WALL_HEIGHT = 40;      // mm, height above floor
 WALL_THICKNESS = 4;    // mm
-WINDOW_BORDER = 2;     // mm, solid border around each window opening
-MID_BAND_WIDTH = 4;    // mm, horizontal support band thickness
 
 // Calculated dimensions
 // (n+1) walls + n tube slots in each direction
@@ -45,45 +43,12 @@ module floor_plate() {
     }
 }
 
-// Single wall segment with window openings aligned to tube grid
+// Single solid wall segment
 // Wall runs along X axis, height in Z, thickness in Y
 // num_cells: number of tube cells this wall spans
 module grid_wall(num_cells, thickness) {
-    cell_pitch = CELL_SIZE + WALL_THICKNESS;
     wall_length = (num_cells + 1) * WALL_THICKNESS + num_cells * CELL_SIZE;
-
-    // Window dimensions: one per cell, with border around each
-    // Split into upper and lower windows by mid band
-    window_width = CELL_SIZE - 2 * WINDOW_BORDER;
-    usable_height = WALL_HEIGHT - 2 * WINDOW_BORDER - MID_BAND_WIDTH;
-    window_height = usable_height / 2;
-
-    // Mid band position (centered in wall height above floor)
-    mid_band_z = FLOOR_HEIGHT + WINDOW_BORDER + window_height;
-
-    difference() {
-        // Solid wall
-        cube([wall_length, thickness, TOTAL_HEIGHT]);
-
-        // Cut out windows - one per cell, above the floor
-        for (i = [0 : num_cells - 1]) {
-            // Lower window
-            translate([
-                WALL_THICKNESS + i * cell_pitch + WINDOW_BORDER,
-                -0.01,
-                FLOOR_HEIGHT + WINDOW_BORDER
-            ])
-            cube([window_width, thickness + 0.02, window_height]);
-
-            // Upper window
-            translate([
-                WALL_THICKNESS + i * cell_pitch + WINDOW_BORDER,
-                -0.01,
-                mid_band_z + MID_BAND_WIDTH
-            ])
-            cube([window_width, thickness + 0.02, window_height]);
-        }
-    }
+    cube([wall_length, thickness, TOTAL_HEIGHT]);
 }
 
 // All walls forming the grid
