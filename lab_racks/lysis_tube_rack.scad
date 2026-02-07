@@ -35,6 +35,12 @@ Y_SPACING = Y_SPAN / (GRID_ROWS - 1);  // ~15.91mm
 FLOOR_THICKNESS = 3;   // mm
 RACK_HEIGHT = CUTOUT_DEPTH + FLOOR_THICKNESS;  // 28mm total
 
+// Label parameters
+LABEL_DEPTH = 0.5;     // mm, engraving depth into top surface
+LABEL_SIZE = 3;         // mm, font size
+LABEL_FONT = "Roboto:style=Bold";  // requires Roboto font installed on system
+LABEL_Y_OFFSET = -(CUTOUT_OD / 2 + 2.5);  // mm, below well center
+
 // Main rack body
 module rack_body() {
     cube([SLAS_LENGTH, SLAS_WIDTH, RACK_HEIGHT]);
@@ -54,11 +60,35 @@ module tube_cutouts() {
     }
 }
 
+// Well labels - numbered from A1 corner (top-left when viewed from above)
+// Pairs of rows share column-major numbering: row 1 gets odds, row 2 gets evens
+module well_labels() {
+    for (col = [0 : GRID_COLS - 1]) {
+        for (row = [0 : GRID_ROWS - 1]) {
+            // A1 is at max Y, so invert row index for display ordering
+            display_row = (GRID_ROWS - 1) - row;
+            pair_index = floor(display_row / 2);
+            row_within_pair = display_row % 2;
+            label_num = pair_index * GRID_COLS * 2 + col * 2 + row_within_pair + 1;
+
+            translate([
+                X_MARGIN + col * X_SPACING,
+                Y_MARGIN + row * Y_SPACING + LABEL_Y_OFFSET,
+                RACK_HEIGHT - LABEL_DEPTH
+            ])
+            linear_extrude(height = LABEL_DEPTH + 0.01)
+            text(str(label_num), size = LABEL_SIZE, font = LABEL_FONT,
+                 halign = "center", valign = "center");
+        }
+    }
+}
+
 // Main assembly
 module lysis_tube_rack() {
     difference() {
         rack_body();
         tube_cutouts();
+        well_labels();
     }
 }
 
