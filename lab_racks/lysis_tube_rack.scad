@@ -12,7 +12,7 @@ TUBE_OD = 10.1;        // mm, actual tube outer diameter
 TUBE_HEIGHT = 30;      // mm, actual tube height
 
 // Cutout dimensions
-CUTOUT_OD = 10.3;      // mm
+CUTOUT_OD = 11;      // mm
 CUTOUT_DEPTH = 25;     // mm
 
 // Grid layout
