@@ -5,7 +5,7 @@ $fn = 50;
 
 // Grid dimensions
 GRID_COLS = 2;
-GRID_ROWS = 12;
+GRID_ROWS = 4;
 CELL_SIZE = 17.5;  // mm, square well size (17.5 x 17.5mm)
 
 // Tube parameters
