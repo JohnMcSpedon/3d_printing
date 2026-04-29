@@ -7,9 +7,9 @@ $fn = 60;
 // Outer footprint (XY) and overall boat height (Z, excludes the foot
 // that hangs below the floor).
 BOAT_LENGTH    = 50;   // mm, X
-BOAT_WIDTH     = 30;   // mm, Y
-BOAT_HEIGHT    = 15;   // mm, Z
-CORNER_RADIUS  = 6;    // mm, footprint corner rounding (parameter)
+BOAT_WIDTH     = 80;   // mm, Y
+BOAT_HEIGHT    = 25;   // mm, Z
+CORNER_RADIUS  = 10;    // mm, footprint corner rounding (parameter)
 
 // Material thicknesses
 FLOOR_THICKNESS = 3;   // mm

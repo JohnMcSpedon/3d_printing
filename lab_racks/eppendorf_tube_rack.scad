@@ -47,7 +47,7 @@ DOVETAIL_LENGTH = 7.5;        // mm, projection in X
 DOVETAIL_BASE_WIDTH = 8;    // mm, Y width at the rack face (narrow end)
 DOVETAIL_TIP_WIDTH = 14;    // mm, Y width at the protruding tip (wide end)
 DOVETAIL_HEIGHT = 2.5;      // mm, vertical extent in Z
-DOVETAIL_TOLERANCE = 0.5;   // mm, female pocket grown by this in all directions
+DOVETAIL_TOLERANCE = 0.1;   // mm, female pocket grown by this in all directions
 
 // Label parameters
 LABEL_DEPTH = 0.5;       // mm, engraving depth into top surface
