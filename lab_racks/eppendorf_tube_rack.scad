@@ -1,6 +1,6 @@
 // Eppendorf Tube Rack
 // Requested by Jonathan for qiavac 1223 run
-// 4x12 grid of 1.5 mL Eppendorf tube cutouts
+// Grid of 1.5 mL Eppendorf tube cutouts (size set by GRID_COLS x GRID_ROWS)
 
 $fn = 50;
 
@@ -9,8 +9,8 @@ CUTOUT_OD = 11.1;       // mm diameter
 CUTOUT_DEPTH = 25;      // mm
 
 // Grid layout
-GRID_COLS = 6;         // along X, columns 1-12
-GRID_ROWS = 4;          // along Y, rows A-D
+GRID_COLS = 6;          // along X, numbered 1..GRID_COLS
+GRID_ROWS = 4;          // along Y, lettered from ROW_LETTERS
 
 // Spacing (center-to-center)
 X_SPACING = 18;         // mm, matches lysis rack for multichannel pipette use (every other tip)
@@ -20,16 +20,6 @@ Y_SPACING = 33;         // mm
 X_MARGIN = 10;          // mm
 Y_MARGIN = 10;          // mm
 
-// Calculated footprint
-X_SPAN = (GRID_COLS - 1) * X_SPACING;           // 286mm
-Y_SPAN = (GRID_ROWS - 1) * Y_SPACING;           // 48mm
-RACK_LENGTH = X_SPAN + 2 * X_MARGIN;            // 306mm
-RACK_WIDTH  = Y_SPAN + 2 * Y_MARGIN;            // 68mm
-
-// Rack height
-FLOOR_THICKNESS = 5;                            // mm
-RACK_HEIGHT = FLOOR_THICKNESS + CUTOUT_DEPTH;   // 28mm
-
 // Minimum wall left around each tube cutout when carving out the
 // between-row gaps
 WALL_THICKNESS = 2;     // mm
@@ -38,16 +28,28 @@ WALL_THICKNESS = 2;     // mm
 // slot floor meets the slot side walls (easier to wipe clean).
 FILLET_RADIUS = 5;      // mm
 
-// Dovetail joint to chain racks along X. Male tongue protrudes in -X
-// from one rack and seats into the female pocket on the +X face of
-// the next rack. One pair per inter-row gap. Sits at the bottom of
-// the floor (z = 0 .. DOVETAIL_HEIGHT) so the male prints flat on
-// the bed and the female pocket has no overhang to bridge.
-DOVETAIL_LENGTH = 7.5;        // mm, projection in X
-DOVETAIL_BASE_WIDTH = 8;    // mm, Y width at the rack face (narrow end)
-DOVETAIL_TIP_WIDTH = 14;    // mm, Y width at the protruding tip (wide end)
-DOVETAIL_HEIGHT = 2.5;      // mm, vertical extent in Z
-DOVETAIL_TOLERANCE = 0.1;   // mm, female pocket grown by this in all directions
+// Sliding rail dovetail at midheight on the X faces. Trapezoid
+// cross-section in X-Z, extruded along Y for the full rack width, so
+// two racks can be slid together along Y.
+DOVETAIL_LENGTH = 7.5;      // mm, projection in X (length of tongue / depth of pocket)
+DOVETAIL_BASE_WIDTH = 8;    // mm, narrow end (at the rack face)
+DOVETAIL_TIP_WIDTH = 14;    // mm, wide end (at the protruding tip / pocket interior)
+DOVETAIL_TOLERANCE = 0.05;   // mm, female pocket grown by this in all directions
+DOVETAIL_REG_LEN = 4;       // mm, asymmetric registration plug/notch length at one Y end
+
+// Rack height
+FLOOR_THICKNESS = 5;                            // mm
+RACK_HEIGHT = FLOOR_THICKNESS + CUTOUT_DEPTH;
+
+// Calculated footprint. The +X side gets extra material so the sliding
+// rail's female pocket (cut DOVETAIL_LENGTH into the +X face) stays
+// clear of the rightmost wells with a WALL_THICKNESS safety wall.
+X_SPAN = (GRID_COLS - 1) * X_SPACING;
+Y_SPAN = (GRID_ROWS - 1) * Y_SPACING;
+X_MARGIN_PLUS = max(X_MARGIN,
+                    CUTOUT_OD / 2 + WALL_THICKNESS + DOVETAIL_LENGTH);
+RACK_LENGTH = X_SPAN + X_MARGIN + X_MARGIN_PLUS;
+RACK_WIDTH  = Y_SPAN + 2 * Y_MARGIN;
 
 // Label parameters
 LABEL_DEPTH = 0.5;       // mm, engraving depth into top surface
@@ -84,11 +86,15 @@ module tube_cutouts() {
 module row_gap_slots() {
     slot_y = Y_SPACING - CUTOUT_OD - 2 * WALL_THICKNESS;
     R = FILLET_RADIUS;
-    x_length = RACK_LENGTH + 2;
+    // Extend in -X past the rail tip so the protruding rail is also
+    // cut at the slot Y positions (otherwise it would print as a
+    // floating chunk with no rack body beneath it).
+    x_start  = -DOVETAIL_LENGTH - 1;
+    x_length = RACK_LENGTH + DOVETAIL_LENGTH + 2;
     slot_height = CUTOUT_DEPTH + 0.01;
     for (gap = [0 : GRID_ROWS - 2]) {
         translate([
-            -1,
+            x_start,
             Y_MARGIN + (gap + 0.5) * Y_SPACING - slot_y / 2,
             FLOOR_THICKNESS
         ])
@@ -108,40 +114,50 @@ module row_gap_slots() {
     }
 }
 
-// Dovetail solid: narrow end (BASE_WIDTH) at x=0, wide end
-// (TIP_WIDTH) at x = -DOVETAIL_LENGTH, sitting on z=0, centered on
-// y=0. Pass grow > 0 to enlarge in all 3 dims for the female pocket.
-module dovetail(grow = 0) {
-    translate([0, 0, -grow])
-    linear_extrude(height = DOVETAIL_HEIGHT + 2 * grow)
-    offset(r = grow)
-    polygon(points = [
-        [0,                -DOVETAIL_BASE_WIDTH / 2],
-        [0,                 DOVETAIL_BASE_WIDTH / 2],
-        [-DOVETAIL_LENGTH,  DOVETAIL_TIP_WIDTH  / 2],
-        [-DOVETAIL_LENGTH, -DOVETAIL_TIP_WIDTH  / 2],
-    ]);
+// Sliding rail dovetail. Trapezoid cross-section in the X-Z plane
+// (centered on z = RACK_HEIGHT/2), extruded along Y for the full rack
+// width. Narrow base at x=0 (rack face), wide tip at x=-DOVETAIL_LENGTH.
+// Lets two racks be slid together along Y.
+module dovetail_rail(grow = 0) {
+    rail_y = RACK_WIDTH + 2 * grow;
+    translate([0, RACK_WIDTH + grow, 0])
+        rotate([90, 0, 0])
+            linear_extrude(height = rail_y)
+                offset(r = grow)
+                polygon(points = [
+                    [0,                 RACK_HEIGHT / 2 - DOVETAIL_BASE_WIDTH / 2],
+                    [0,                 RACK_HEIGHT / 2 + DOVETAIL_BASE_WIDTH / 2],
+                    [-DOVETAIL_LENGTH,  RACK_HEIGHT / 2 + DOVETAIL_TIP_WIDTH  / 2],
+                    [-DOVETAIL_LENGTH,  RACK_HEIGHT / 2 - DOVETAIL_TIP_WIDTH  / 2],
+                ]);
 }
 
-// Male tongues on the -X face, one per inter-row gap.
-module dovetail_males() {
-    for (gap = [0 : GRID_ROWS - 2]) {
-        translate([0, Y_MARGIN + (gap + 0.5) * Y_SPACING, 0])
-            dovetail();
+// Male rail on the -X face. Notched at the +Y end to register against
+// the mating rack's pocket plug at its -Y end.
+module dovetail_rail_male() {
+    difference() {
+        dovetail_rail();
+        translate([-DOVETAIL_LENGTH-1, -1, -1])
+            cube([DOVETAIL_LENGTH+1, DOVETAIL_REG_LEN+1, RACK_HEIGHT+2]);
     }
 }
 
-// Female pockets on the +X face, one per inter-row gap. The pocket's
-// narrow opening sits flush at x = RACK_LENGTH so a mating rack's
-// tongue (with base at its own x=0) seats fully against this face.
-module dovetail_females() {
-    for (gap = [0 : GRID_ROWS - 2]) {
-        translate([RACK_LENGTH, Y_MARGIN + (gap + 0.5) * Y_SPACING, 0])
-            dovetail(grow = DOVETAIL_TOLERANCE);
+// Female pocket on the +X face. Plugged at the -Y end so rack body
+// material remains there, blocking the mating rail past its notch.
+module dovetail_rail_female() {
+    difference() {
+        translate([RACK_LENGTH, 0, 0])
+            dovetail_rail(grow = DOVETAIL_TOLERANCE);
+        translate([RACK_LENGTH - DOVETAIL_LENGTH - 1,
+                   -DOVETAIL_TOLERANCE - 1,
+                   -1])
+            cube([DOVETAIL_LENGTH + 2,
+                  DOVETAIL_REG_LEN + DOVETAIL_TOLERANCE + 1,
+                  RACK_HEIGHT + 2]);
     }
 }
 
-// Row labels A-D engraved on top surface, left margin
+// Row labels engraved on top surface, left margin
 module row_labels() {
     for (row = [0 : GRID_ROWS - 1]) {
         translate([
@@ -155,7 +171,7 @@ module row_labels() {
     }
 }
 
-// Column labels 1-12 engraved on top surface, top margin (above row A)
+// Column labels engraved on top surface, top margin (above row A)
 module column_labels() {
     for (col = [0 : GRID_COLS - 1]) {
         translate([
@@ -174,11 +190,11 @@ module eppendorf_tube_rack() {
     difference() {
         union() {
             rack_body();
-            dovetail_males();
+            dovetail_rail_male();
         }
         tube_cutouts();
         row_gap_slots();
-        dovetail_females();
+        dovetail_rail_female();
         row_labels();
         column_labels();
     }
@@ -186,3 +202,7 @@ module eppendorf_tube_rack() {
 
 // Render
 eppendorf_tube_rack();
+
+
+//color("pink") translate([RACK_LENGTH, DOVETAIL_REG_LEN, 0]) eppendorf_tube_rack();
+
