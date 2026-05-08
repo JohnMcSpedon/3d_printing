@@ -24,9 +24,9 @@ Y_SPAN = (GRID_ROWS - 1) * WELL_SPACING;  // 7 * 9 = 63mm
 Y_MARGIN = (SLAS_WIDTH - Y_SPAN) / 2;     // ~11.24mm
 
 // Rack height
-RACK_HEIGHT = 22;      // mm
+RACK_HEIGHT = 18.5;      // mm
 FLOOR_THICKNESS = 3;   // mm
-CUTOUT_DEPTH = RACK_HEIGHT - FLOOR_THICKNESS;  // 19mm
+CUTOUT_DEPTH = RACK_HEIGHT - FLOOR_THICKNESS;  // 15.5mm
 
 // Label parameters — raised above the top surface
 LABEL_HEIGHT = 1;      // mm above plate surface
