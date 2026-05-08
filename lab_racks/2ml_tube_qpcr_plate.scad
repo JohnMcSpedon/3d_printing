@@ -13,14 +13,14 @@ SLAS_WIDTH = 85.48;    // mm (Y)
 TUBE_OD = 10.1;
 TUBE_HEIGHT = 30;
 
-// Cylindrical cutout (unchanged from lysis_tube_rack)
-CUTOUT_OD = 11;        // mm
-CUTOUT_DEPTH = 25;     // mm
+// Cylindrical cutout
+CUTOUT_OD = 11;        // mm (unchanged from lysis_tube_rack)
+CUTOUT_DEPTH = 34;     // mm (lysis_tube_rack was 25; +9mm here)
 
 // Cap-securing slot, offset in +Y from each cylinder
 CAP_SLOT_Y_GAP = 6;    // mm of solid material between cylinder edge and slot edge in Y
 SLOT_WIDTH_X = 14;     // mm
-SLOT_DEPTH_Y = 8;      // mm
+SLOT_DEPTH_Y = 7;      // mm
 
 // Grid layout
 GRID_COLS = 8;
@@ -44,9 +44,13 @@ Y_BETWEEN_ROW_GAP = (SLAS_WIDTH - GRID_ROWS * Y_ROW_SPAN - 2 * Y_EDGE_MARGIN) / 
 Y_MARGIN = Y_EDGE_MARGIN + CUTOUT_OD / 2;  // bottom rack edge to row 0 well center
 Y_SPACING = Y_ROW_SPAN + Y_BETWEEN_ROW_GAP;
 
-// Rack height (unchanged from original)
+// Rack height — derived from cylinder depth + floor
 FLOOR_THICKNESS = 3;
-RACK_HEIGHT = FLOOR_THICKNESS + CUTOUT_DEPTH;  // 28mm
+RACK_HEIGHT = FLOOR_THICKNESS + CUTOUT_DEPTH;  // 37mm
+
+// Orientation chamfers — both left corners are cut so a 180° rotation moves
+// the cuts to the right side and is immediately visible.
+CHAMFER_SIZE = 5;      // mm along each edge
 
 // Label parameters — raised on the 6mm solid strip between each cylinder and slot
 LABEL_HEIGHT = 1;      // mm raised above top surface
@@ -71,6 +75,30 @@ module tube_cutouts() {
             cylinder(d = CUTOUT_OD, h = CUTOUT_DEPTH + 0.01);
         }
     }
+}
+
+// Triangular chamfer cuts at top-left and bottom-left corners
+module chamfer_cutouts() {
+    overflow = 0.1;
+    h = RACK_HEIGHT + 2 * overflow;
+
+    // Bottom-left
+    translate([0, 0, -overflow])
+    linear_extrude(height = h)
+    polygon([
+        [-overflow, -overflow],
+        [CHAMFER_SIZE, -overflow],
+        [-overflow, CHAMFER_SIZE]
+    ]);
+
+    // Top-left
+    translate([0, 0, -overflow])
+    linear_extrude(height = h)
+    polygon([
+        [-overflow, SLAS_WIDTH + overflow],
+        [-overflow, SLAS_WIDTH - CHAMFER_SIZE],
+        [CHAMFER_SIZE, SLAS_WIDTH + overflow]
+    ]);
 }
 
 // Cap-securing rectangular slots, offset in +Y from each cylinder
@@ -116,6 +144,7 @@ module qpcr_tube_plate() {
             rack_body();
             tube_cutouts();
             cap_slot_cutouts();
+            chamfer_cutouts();
         }
         well_labels();
     }

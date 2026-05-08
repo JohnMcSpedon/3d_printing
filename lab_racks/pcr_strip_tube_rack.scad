@@ -24,9 +24,9 @@ Y_SPAN = (GRID_ROWS - 1) * WELL_SPACING;  // 7 * 9 = 63mm
 Y_MARGIN = (SLAS_WIDTH - Y_SPAN) / 2;     // ~11.24mm
 
 // Rack height
-RACK_HEIGHT = 15;      // mm
+RACK_HEIGHT = 22;      // mm
 FLOOR_THICKNESS = 3;   // mm
-CUTOUT_DEPTH = RACK_HEIGHT - FLOOR_THICKNESS;  // 12mm
+CUTOUT_DEPTH = RACK_HEIGHT - FLOOR_THICKNESS;  // 19mm
 
 // Label parameters — raised above the top surface
 LABEL_HEIGHT = 1;      // mm above plate surface
@@ -34,6 +34,10 @@ LABEL_SIZE = 4;        // mm font size
 LABEL_FONT = "Roboto:style=Bold";
 ROW_LABEL_X = X_MARGIN / 2;              // left margin, A-H
 COL_LABEL_Y = SLAS_WIDTH - Y_MARGIN / 2; // top margin, 1-12
+
+// Orientation chamfers — both left corners are cut so a 180° rotation moves
+// the cuts to the right side and is immediately visible.
+CHAMFER_SIZE = 5;      // mm along each edge
 
 // Main rack body
 module rack_body() {
@@ -83,11 +87,36 @@ module row_labels() {
     }
 }
 
+// Triangular chamfer cuts at top-left and bottom-left corners
+module chamfer_cutouts() {
+    overflow = 0.1;
+    h = RACK_HEIGHT + 2 * overflow;
+
+    // Bottom-left
+    translate([0, 0, -overflow])
+    linear_extrude(height = h)
+    polygon([
+        [-overflow, -overflow],
+        [CHAMFER_SIZE, -overflow],
+        [-overflow, CHAMFER_SIZE]
+    ]);
+
+    // Top-left
+    translate([0, 0, -overflow])
+    linear_extrude(height = h)
+    polygon([
+        [-overflow, SLAS_WIDTH + overflow],
+        [-overflow, SLAS_WIDTH - CHAMFER_SIZE],
+        [CHAMFER_SIZE, SLAS_WIDTH + overflow]
+    ]);
+}
+
 // Main assembly
 module pcr_strip_tube_rack() {
     difference() {
         rack_body();
         tube_cutouts();
+        chamfer_cutouts();
     }
     col_labels();
     row_labels();
