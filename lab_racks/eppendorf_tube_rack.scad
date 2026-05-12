@@ -34,7 +34,7 @@ FILLET_RADIUS = 5;      // mm
 DOVETAIL_LENGTH = 7.5;      // mm, projection in X (length of tongue / depth of pocket)
 DOVETAIL_BASE_WIDTH = 8;    // mm, narrow end (at the rack face)
 DOVETAIL_TIP_WIDTH = 14;    // mm, wide end (at the protruding tip / pocket interior)
-DOVETAIL_TOLERANCE = 0.3;   // mm, female pocket grown by this in all directions
+DOVETAIL_TOLERANCE = 0.4;   // mm, female pocket grown by this in all directions
 DOVETAIL_REG_LEN = 4;       // mm, asymmetric registration plug/notch length at one Y end
 
 // Rack height
