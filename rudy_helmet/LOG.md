@@ -39,3 +39,15 @@ version should be similar shape but more flexible.
 - Added `side = "L"/"R"` mirror switch (reflect across Y axis); both STLs
   exported. Printing v4 Left first — checking fit with v3 Right + v4 Left
   before printing a v4 Right.
+
+**Result:** The two thin bands between the hole and the original peg are still
+too rigid. Second peg's 5mm head should come back down to 4mm.
+
+## v5 — 2026-08-13 — PETG (planned)
+
+- Second peg head 5mm → 4mm OD (first peg keeps 5mm).
+- Flex zone: the slot-arm section (both bands) recessed from the top surface
+  to 1.5mm thick. Chosen over rounded-rect cutouts through the bands:
+  bending stiffness scales with thickness³ (~3x more flex), strain spreads
+  over the whole section instead of concentrating at cutout corners, and the
+  recess prints support-free. If still too stiff, lower `flex_t` further.

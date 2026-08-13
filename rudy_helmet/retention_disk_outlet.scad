@@ -20,6 +20,12 @@ tab_hole_gap = 7.5;   // tab inside edge to right hole center, mm
 peg2_dist = 50;       // second peg, center-to-center from first peg, mm
 peg2_angle = -30;     // direction from first peg, deg from +X
                       // (-30 centers it in the bottom lobe, ~6mm off all edges)
+peg2_head_d = 4;      // second peg head OD, mm (first peg keeps 5mm)
+
+flex_t = 1.5;         // plate thickness in the flex zone, mm
+flex_x = [6, 42];     // flex zone x extent: the two bands around the slot,
+flex_y = [-15, 26];   //   between the bottom lobe and the hole/tab end
+flex_r = 3;           // corner radius of the recess, mm
 
 // The base's rightmost side is the straight outline segment from
 // outline_pts[3] (bottom) to outline_pts[2] (top), tilted ~3.3 deg off
@@ -69,6 +75,12 @@ difference() {
         cylinder(d = right_hole_d, h = thickness + 2 * eps);
     translate([hole_pos[0], hole_pos[1], -eps])
         cylinder(d = counterbore_d, h = counterbore_h + eps);
+    // Flex zone: recess the top surface over the slot arm down to flex_t
+    translate([0, 0, flex_t])
+        linear_extrude(height = thickness)
+            offset(r = flex_r) offset(delta = -flex_r)
+                translate([(flex_x[0] + flex_x[1]) / 2, (flex_y[0] + flex_y[1]) / 2])
+                    square([flex_x[1] - flex_x[0], flex_y[1] - flex_y[0]], center = true);
 }
 
 // Peg standing on the top surface, centered on the left circle of the trace
@@ -78,7 +90,7 @@ translate([left_hole_pos[0], left_hole_pos[1], thickness])
 // Second peg (not in original drawing), 50mm from the first, bottom lobe
 peg2_pos = left_hole_pos + peg2_dist * [cos(peg2_angle), sin(peg2_angle)];
 translate([peg2_pos[0], peg2_pos[1], thickness])
-    peg();
+    peg(head_d = peg2_head_d);
 
 // Rounded-rect boss on the top surface, parallel to the base's right edge
 translate([tab_center[0], tab_center[1], thickness - eps])
