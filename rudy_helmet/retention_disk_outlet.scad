@@ -54,6 +54,10 @@ module peg(base_d = 3, base_h = 2.5, head_d = 5, head_h = 3, tip_d = 2, taper_fr
     }
 }
 
+side = "L";           // "R" = as traced, "L" = mirrored across the Y axis
+
+// Full part, as traced (right-side geometry)
+module part() {
 // Solid plate from the outer trace, minus the inner slot and the right hole
 difference() {
     linear_extrude(height = thickness)
@@ -82,3 +86,9 @@ translate([tab_center[0], tab_center[1], thickness - eps])
         linear_extrude(height = tab_h + eps)
             offset(r = tab_r)
                 square([tab_w - 2 * tab_r, tab_l - 2 * tab_r], center = true);
+}
+
+if (side == "R")
+    part();
+else
+    mirror([1, 0, 0]) part();

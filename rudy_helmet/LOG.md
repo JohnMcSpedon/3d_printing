@@ -36,3 +36,6 @@ version should be similar shape but more flexible.
   ~6mm clearance from all edges).
 - Thickness 2mm → 2.2mm.
 - Print at 20% infill.
+- Added `side = "L"/"R"` mirror switch (reflect across Y axis); both STLs
+  exported. Printing v4 Left first — checking fit with v3 Right + v4 Left
+  before printing a v4 Right.
