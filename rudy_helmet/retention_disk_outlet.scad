@@ -5,7 +5,7 @@
 
 include <part_geometry.scad>
 
-thickness = 2.5;      // plate height, mm
+thickness = 2;        // plate height, mm
 right_hole_d = 4.45;  // through-hole OD, mm
 counterbore_d = 10;   // cutout under the right hole, mm
 counterbore_h = 1.5;  // from z=0 up to this height, mm
@@ -40,7 +40,7 @@ eps = 0.01;
 
 // Peg: cylindrical base with a wider head that tapers at the top.
 // Heights are above the surface the peg stands on.
-module peg(base_d = 3, base_h = 2.5, head_d = 4, head_h = 3, tip_d = 2, taper_frac = 0.5) {
+module peg(base_d = 3, base_h = 2.5, head_d = 5, head_h = 3, tip_d = 2, taper_frac = 0.5) {
     cylinder(d = base_d, h = base_h + eps);
     translate([0, 0, base_h]) {
         straight_h = head_h * (1 - taper_frac);
