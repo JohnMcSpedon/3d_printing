@@ -5,7 +5,7 @@
 
 include <part_geometry.scad>
 
-thickness = 2;        // plate height, mm
+thickness = 2.2;      // plate height, mm
 right_hole_d = 4.45;  // through-hole OD, mm
 counterbore_d = 10;   // cutout under the right hole, mm
 counterbore_h = 1.5;  // from z=0 up to this height, mm
@@ -16,6 +16,10 @@ tab_h = 2;            // height above top surface, mm
 tab_r = 1;            // corner radius, mm
 tab_edge_gap = 1;     // tab outside edge to base right edge, mm
 tab_hole_gap = 7.5;   // tab inside edge to right hole center, mm
+
+peg2_dist = 50;       // second peg, center-to-center from first peg, mm
+peg2_angle = -30;     // direction from first peg, deg from +X
+                      // (-30 centers it in the bottom lobe, ~6mm off all edges)
 
 // The base's rightmost side is the straight outline segment from
 // outline_pts[3] (bottom) to outline_pts[2] (top), tilted ~3.3 deg off
@@ -65,6 +69,11 @@ difference() {
 
 // Peg standing on the top surface, centered on the left circle of the trace
 translate([left_hole_pos[0], left_hole_pos[1], thickness])
+    peg();
+
+// Second peg (not in original drawing), 50mm from the first, bottom lobe
+peg2_pos = left_hole_pos + peg2_dist * [cos(peg2_angle), sin(peg2_angle)];
+translate([peg2_pos[0], peg2_pos[1], thickness])
     peg();
 
 // Rounded-rect boss on the top surface, parallel to the base's right edge

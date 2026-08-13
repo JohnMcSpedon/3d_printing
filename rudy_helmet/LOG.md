@@ -26,3 +26,13 @@ version should be similar shape but more flexible.
 - Thickness 2.5mm → 2mm for more flex.
 - Peg head widened 4mm → 5mm OD to hold better (taper to 2mm tip unchanged).
 - Print at 30% infill, grid pattern.
+
+**Result:** Slightly rigid but fits! Needs one more peg not in original drawing.
+
+## v4 — 2026-08-13 — PETG (planned)
+
+- Second peg, 50mm center-to-center from the first, placed mid-region in the
+  bottom-center lobe of the sketch (30° below horizontal from peg 1; lands at
+  ~6mm clearance from all edges).
+- Thickness 2mm → 2.2mm.
+- Print at 20% infill.
