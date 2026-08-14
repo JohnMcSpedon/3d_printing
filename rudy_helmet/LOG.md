@@ -51,3 +51,5 @@ too rigid. Second peg's 5mm head should come back down to 4mm.
   bending stiffness scales with thickness³ (~3x more flex), strain spreads
   over the whole section instead of concentrating at cutout corners, and the
   recess prints support-free. If still too stiff, lower `flex_t` further.
+
+**Result:** This worked! Final version.
